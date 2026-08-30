@@ -1,0 +1,115 @@
+/* ── Google Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700;9..144,900&family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-haze-50 text-ink font-body antialiased;
+}
+
+::selection {
+  @apply bg-clay-300 text-forest-900;
+}
+
+:focus-visible {
+  outline: 2px solid #c2703a;
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* ──────────────────────────────────────────────────────────
+   Blob float animations
+────────────────────────────────────────────────────────── */
+@keyframes blob-float-a {
+  0%,100% { transform: translate(0,0) scale(1); }
+  33%      { transform: translate(30px,-40px) scale(1.08); }
+  66%      { transform: translate(-20px,25px) scale(0.95); }
+}
+@keyframes blob-float-b {
+  0%,100% { transform: translate(0,0) scale(1); }
+  50%      { transform: translate(-35px,30px) scale(1.1); }
+}
+.blob-a { animation: blob-float-a 16s ease-in-out infinite; }
+.blob-b { animation: blob-float-b 20s ease-in-out infinite; }
+
+/* ──────────────────────────────────────────────────────────
+   Float Y (hero card icon)
+────────────────────────────────────────────────────────── */
+@keyframes float-y {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-10px); }
+}
+.float-y { animation: float-y 4.5s ease-in-out infinite; }
+
+/* ──────────────────────────────────────────────────────────
+   Pulse ring (live indicator)
+────────────────────────────────────────────────────────── */
+@keyframes pulse-ring {
+  0%   { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+.pulse-ring::before,
+.pulse-ring::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  background: currentColor;
+  animation: pulse-ring 2.4s ease-out infinite;
+}
+.pulse-ring::after { animation-delay: 1.2s; }
+
+/* ──────────────────────────────────────────────────────────
+   Route dash (how-it-works line)
+────────────────────────────────────────────────────────── */
+@keyframes drift-dash {
+  to { stroke-dashoffset: -200; }
+}
+.route-dash {
+  stroke-dasharray: 8 14;
+  animation: drift-dash 5s linear infinite;
+}
+
+/* ──────────────────────────────────────────────────────────
+   Sheen button effect
+────────────────────────────────────────────────────────── */
+@keyframes sheen {
+  0%   { transform: translateX(-120%) skewX(-14deg); }
+  100% { transform: translateX(240%) skewX(-14deg); }
+}
+.btn-sheen {
+  position: relative;
+  overflow: hidden;
+}
+.btn-sheen::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 45%;
+  height: 100%;
+  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.32), transparent);
+  transform: translateX(-120%) skewX(-14deg);
+}
+.btn-sheen:hover::after {
+  animation: sheen 0.85s ease;
+}
+
+/* ──────────────────────────────────────────────────────────
+   Grain texture
+────────────────────────────────────────────────────────── */
+.bg-grain {
+  background-image: radial-gradient(circle at 1px 1px, rgba(18,24,31,0.06) 1px, transparent 0);
+}
