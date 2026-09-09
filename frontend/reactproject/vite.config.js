@@ -3,19 +3,22 @@ import react from '@vitejs/plugin-react'
 
 export default defineConfig({
   plugins: [react()],
+
+  base: '/Nourishconnect/',
+
   server: {
     port: 5173,
-    host: true,
-    base:'/Nourishconnect/'
+    host: true
   },
+
   build: {
     rollupOptions: {
       output: {
         manualChunks: {
           react: ['react', 'react-dom', 'react-router-dom'],
-          charts: ['recharts'],
-        },
-      },
-    },
+          charts: ['recharts']
+        }
+      }
+    }
   }
 })
