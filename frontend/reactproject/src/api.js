@@ -1,24 +1,12 @@
-// ==========================================
-// API BASE URL
-// ==========================================
-
 const API_URL =
   import.meta.env.VITE_API_URL ||
   'http://localhost:8080'
 
 
-// ==========================================
-// GET JWT TOKEN
-// ==========================================
-
 export function getToken() {
   return localStorage.getItem('nc_token')
 }
 
-
-// ==========================================
-// MAIN API FUNCTION
-// ==========================================
 
 export async function api(path, options = {}) {
 
@@ -27,11 +15,15 @@ export async function api(path, options = {}) {
     ...(options.headers || {})
   }
 
+
   const token = getToken()
 
+
   if (token) {
-    headers.Authorization = `Bearer ${token}`
+    headers.Authorization =
+      `Bearer ${token}`
   }
+
 
   const response = await fetch(
     `${API_URL}${path}`,
@@ -42,48 +34,36 @@ export async function api(path, options = {}) {
   )
 
 
-  // ========================================
-  // HANDLE ERROR
-  // ========================================
-
   if (!response.ok) {
 
-    let message = `Request failed (${response.status})`
+    let message =
+      `Request failed (${response.status})`
 
     try {
-      const text = await response.text()
+
+      const text =
+        await response.text()
 
       if (text) {
         message = text
       }
+
     } catch {
-      // Ignore response parsing error
+      // Ignore
     }
 
     throw new Error(message)
   }
 
 
-  // ========================================
-  // NO CONTENT
-  // ========================================
-
   if (response.status === 204) {
     return null
   }
 
 
-  // ========================================
-  // JSON RESPONSE
-  // ========================================
-
   return response.json()
 }
 
-
-// ==========================================
-// POST
-// ==========================================
 
 export function post(path, body) {
 
@@ -97,10 +77,6 @@ export function post(path, body) {
 }
 
 
-// ==========================================
-// PUT
-// ==========================================
-
 export function put(path, body) {
 
   return api(
@@ -112,10 +88,6 @@ export function put(path, body) {
   )
 }
 
-
-// ==========================================
-// DELETE
-// ==========================================
 
 export function remove(path) {
 
