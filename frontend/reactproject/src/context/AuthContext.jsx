@@ -5,18 +5,35 @@ const AuthContext = createContext(null)
 
 export function AuthProvider({ children }) {
 
+  // =========================
+  // CURRENT USER
+  // =========================
   const [user, setUser] = useState(() => {
     const stored = localStorage.getItem('nc_user')
-    return getToken() && stored ? JSON.parse(stored) : null
+
+    try {
+      return getToken() && stored ? JSON.parse(stored) : null
+    } catch {
+      return null
+    }
   })
 
+
+  // =========================
+  // SAVE / REMOVE USER
+  // =========================
   useEffect(() => {
+
     if (user) {
-      localStorage.setItem('nc_user', JSON.stringify(user))
+      localStorage.setItem(
+        'nc_user',
+        JSON.stringify(user)
+      )
     } else {
       localStorage.removeItem('nc_user')
       localStorage.removeItem('nc_token')
     }
+
   }, [user])
 
 
@@ -31,10 +48,19 @@ export function AuthProvider({ children }) {
     })
 
     if (role && result.role !== role) {
-      throw new Error(`This account is not a ${role}`)
+      throw new Error(
+        `This account is not a ${role}`
+      )
     }
 
-    localStorage.setItem('nc_token', result.token)
+    if (!result.token) {
+      throw new Error('Login failed: token not received')
+    }
+
+    localStorage.setItem(
+      'nc_token',
+      result.token
+    )
 
     const nextUser = {
       email: result.email,
@@ -44,7 +70,9 @@ export function AuthProvider({ children }) {
 
     setUser(nextUser)
 
-    window.dispatchEvent(new Event('nc-auth-changed'))
+    window.dispatchEvent(
+      new Event('nc-auth-changed')
+    )
 
     return nextUser
   }
@@ -61,7 +89,16 @@ export function AuthProvider({ children }) {
       password
     })
 
-    localStorage.setItem('nc_token', result.token)
+    if (!result.token) {
+      throw new Error(
+        'Registration failed: token not received'
+      )
+    }
+
+    localStorage.setItem(
+      'nc_token',
+      result.token
+    )
 
     const nextUser = {
       email: result.email,
@@ -71,7 +108,9 @@ export function AuthProvider({ children }) {
 
     setUser(nextUser)
 
-    window.dispatchEvent(new Event('nc-auth-changed'))
+    window.dispatchEvent(
+      new Event('nc-auth-changed')
+    )
 
     return nextUser
   }
@@ -81,7 +120,15 @@ export function AuthProvider({ children }) {
   // LOGOUT
   // =========================
   function logout() {
+
     setUser(null)
+
+    localStorage.removeItem('nc_token')
+    localStorage.removeItem('nc_user')
+
+    window.dispatchEvent(
+      new Event('nc-auth-changed')
+    )
   }
 
 
@@ -90,10 +137,16 @@ export function AuthProvider({ children }) {
   // =========================
   async function updateProfile(patch) {
 
-    const result = await put('/api/auth/me', patch)
+    const result = await put(
+      '/api/auth/me',
+      patch
+    )
 
     if (result.token) {
-      localStorage.setItem('nc_token', result.token)
+      localStorage.setItem(
+        'nc_token',
+        result.token
+      )
     }
 
     const nextUser = {
@@ -104,7 +157,9 @@ export function AuthProvider({ children }) {
 
     setUser(nextUser)
 
-    window.dispatchEvent(new Event('nc-auth-changed'))
+    window.dispatchEvent(
+      new Event('nc-auth-changed')
+    )
 
     return nextUser
   }
@@ -115,17 +170,42 @@ export function AuthProvider({ children }) {
   // =========================
   useEffect(() => {
 
-    if (getToken()) {
+    async function checkUser() {
 
-      api('/api/auth/me')
-        .then(setUser)
-        .catch(() => setUser(null))
+      const token = getToken()
 
+      if (!token) {
+        return
+      }
+
+      try {
+
+        const result = await api(
+          '/api/auth/me'
+        )
+
+        setUser(result)
+
+      } catch (error) {
+
+        console.error(
+          'Authentication check failed:',
+          error
+        )
+
+        setUser(null)
+
+      }
     }
+
+    checkUser()
 
   }, [])
 
 
+  // =========================
+  // AUTH CONTEXT
+  // =========================
   return (
     <AuthContext.Provider
       value={{
@@ -142,12 +222,17 @@ export function AuthProvider({ children }) {
 }
 
 
+// =========================
+// USE AUTH
+// =========================
 export function useAuth() {
 
   const ctx = useContext(AuthContext)
 
   if (!ctx) {
-    throw new Error('useAuth must be used within AuthProvider')
+    throw new Error(
+      'useAuth must be used within AuthProvider'
+    )
   }
 
   return ctx
